@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AES加密解密工具</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a2980, #26d0ce);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 800px;
+      padding: 30px;
+      margin: 20px auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #1a2980;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(to right, #1a2980, #26d0ce);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    
+    .settings {
+      background-color: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid #e9ecef;
+    }
+    
+    .settings h2 {
+      color: #1a2980;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .input-field {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #495057;
+    }
+    
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    
+    input[type="text"]:focus, select:focus {
+      border-color: #1a2980;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+    }
+    
+    .section {
+      margin-bottom: 25px;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #fff;
+      border: 1px solid #e9ecef;
+    }
+    
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .section-title h2 {
+      color: #1a2980;
+      font-size: 1.3rem;
+    }
+    
+    textarea {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      min-height: 100px;
+      font-size: 1rem;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    .btn {
+      background: linear-gradient(to right, #1a2980, #26d0ce);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(26, 41, 128, 0.2);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(26, 41, 128, 0.3);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .result-area {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      min-height: 50px;
+      margin-top: 10px;
+      font-size: 1rem;
+      border: 1px dashed #ced4da;
+    }
+    
+    .info {
+      background-color: #e8f4fd;
+      border-left: 4px solid #1a8cff;
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .info h3 {
+      color: #1a2980;
+      margin-bottom: 8px;
+    }
+    
+    .info ul {
+      padding-left: 20px;
+    }
+    
+    .info li {
+      margin-bottom: 5px;
+    }
+    
+    .notification {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    
+    .error {
+      background-color: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #c62828;
+    }
+    
+    .success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #2e7d32;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .input-field {
+        min-width: 100%;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AES加密解密工具</h1>
+      <p class="subtitle">支持CBC模式，可自定义密钥、IV和填充方式</p>
+    </header>
+    
+    <div class="settings">
+      <h2>加密设置</h2>
+      <div class="input-group">
+        <div class="input-field">
+          <label for="key">密钥 (Key)：</label>
+          <input type="text" id="key" value="0000000372619038" placeholder="请输入16/24/32字节密钥">
+        </div>
+        <div class="input-field">
+          <label for="iv">初始向量 (IV)：</label>
+          <input type="text" id="iv" value="ilove36dverymuch" placeholder="请输入16字节初始向量">
+        </div>
+        <div class="input-field">
+          <label for="padding">填充方式：</label>
+          <select id="padding">
+            <option value="ZeroPadding">ZeroPadding (零填充)</option>
+            <option value="Pkcs7">Pkcs7 (PKCS#7填充)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">
+        <h2>加密操作</h2>
+      </div>
+      <label for="plaintext">输入明文：</label>
+      <textarea id="plaintext" placeholder="请输入要加密的内容...">12345</textarea>
+      <button class="btn" onclick="doEncrypt()">加密</button>
+      <div class="notification" id="encrypt-notification"></div>
+      <label>加密结果（Hex）：</label>
+      <div class="result-area" id="encryptedText"></div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">
+        <h2>解密操作</h2>
+      </div>
+      <label for="ciphertext">输入密文（Hex）：</label>
+      <textarea id="ciphertext" placeholder="请输入要解密的十六进制内容..."></textarea>
+      <button class="btn" onclick="doDecrypt()">解密</button>
+      <div class="notification" id="decrypt-notification"></div>
+      <label>解密结果（原文）：</label>
+      <div class="result-area" id="decryptedText"></div>
+    </div>
+    
+    <div class="info">
+      <h3>使用说明</h3>
+      <ul>
+        <li>密钥(Key)长度：支持16字节(128位)、24字节(192位)、32字节(256位)</li>
+        <li>初始向量(IV)长度：固定16字节(128位)</li>
+        <li>填充方式：
+          <ul>
+            <li><strong>ZeroPadding</strong> - 使用零填充数据块</li>
+            <li><strong>Pkcs7</strong> - 使用PKCS#7标准填充</li>
+          </ul>
+        </li>
+        <li>加密结果以十六进制(Hex)格式显示</li>
+        <li>解密时请确保输入完整的十六进制密文</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <p>
+        <span>AES加密解密工具 &copy; 2023 | 基于CryptoJS实现</span>
+        <span>|</span>
+        <a href="javascript:void(0)" class="qq-info">QQ：1172475422</a>
+        <span>|</span>
+        <span class="copyright">版权小菜鸡</span>
+      </p>
+    </div>
+  </div>
+  <script>
+    function getPaddingMode() {
+      const paddingSelect = document.getElementById('padding');
+      const paddingValue = paddingSelect.value;
+      return paddingValue === 'ZeroPadding' ? CryptoJS.pad.ZeroPadding : CryptoJS.pad.Pkcs7;
+    }
+    
+    function showNotification(elementId, message, isSuccess) {
+      const notification = document.getElementById(elementId);
+      notification.textContent = message;
+      notification.className = `notification ${isSuccess ? 'success' : 'error'}`;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+    
+    function doEncrypt() {
+      const keyStr = document.getElementById('key').value;
+      const ivStr = document.getElementById('iv').value;
+      const data = document.getElementById('plaintext').value;
+      const paddingMode = getPaddingMode();
+      
+      // 验证输入
+      if (!keyStr || !ivStr) {
+        showNotification('encrypt-notification', '错误：请填写密钥和初始向量', false);
+        return;
+      }
+      
+      if (!data) {
+        showNotification('encrypt-notification', '错误：请输入要加密的内容', false);
+        return;
+      }
+      
+      try {
+        const key = CryptoJS.enc.Latin1.parse(keyStr);
+        const iv = CryptoJS.enc.Latin1.parse(ivStr);
+        
+        const encrypted = CryptoJS.AES.encrypt(data, key, {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: paddingMode
+        });
+        
+        const hex = encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+        document.getElementById('encryptedText').textContent = hex;
+        showNotification('encrypt-notification', '加密成功！', true);
+      } catch (error) {
+        showNotification('encrypt-notification', `加密失败：${error.message}`, false);
+      }
+    }
+    
+    function doDecrypt() {
+      const keyStr = document.getElementById('key').value;
+      const ivStr = document.getElementById('iv').value;
+      const hexCipher = document.getElementById('ciphertext').value;
+      const paddingMode = getPaddingMode();
+      
+      // 验证输入
+      if (!keyStr || !ivStr) {
+        showNotification('decrypt-notification', '错误：请填写密钥和初始向量', false);
+        return;
+      }
+      
+      if (!hexCipher) {
+        showNotification('decrypt-notification', '错误：请输入要解密的密文', false);
+        return;
+      }
+      
+      try {
+        const key = CryptoJS.enc.Latin1.parse(keyStr);
+        const iv = CryptoJS.enc.Latin1.parse(ivStr);
+        
+        const cipherParams = CryptoJS.lib.CipherParams.create({
+          ciphertext: CryptoJS.enc.Hex.parse(hexCipher)
+        });
+        
+        const decrypted = CryptoJS.AES.decrypt(cipherParams, key, {
+          iv: iv,
+          mode: CryptoJS.mode.CBC,
+          padding: paddingMode
+        });
+        
+        const result = decrypted.toString(CryptoJS.enc.Utf8);
+        document.getElementById('decryptedText').textContent = result;
+        showNotification('decrypt-notification', '解密成功！', true);
+      } catch (error) {
+        showNotification('decrypt-notification', `解密失败：${error.message}`, false);
+      }
+    }
+    
+    // 初始化：设置示例密文
+    document.addEventListener('DOMContentLoaded', function() {
+      // 模拟加密一次以生成示例密文
+      const key = CryptoJS.enc.Latin1.parse("0000000372619038");
+      const iv = CryptoJS.enc.Latin1.parse("ilove36dverymuch");
+      const data = "12345";
+      
+      const encrypted = CryptoJS.AES.encrypt(data, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.ZeroPadding
+      });
+      
+      const hex = encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+      document.getElementById('ciphertext').value = hex;
+    });
+  </script>
+</body>
+</html>
